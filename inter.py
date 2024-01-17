@@ -37,6 +37,13 @@ num_to_die = {
 	6: "6️⃣"
 }
 
+type_to_symbol = {
+	'light': '💛',
+	'dark': '💔',
+	'mastery': '💚',
+	'heart': '💙'
+}
+
 log("Defining helper functions")
 def d6():
 	return rnd.randint(1,6)
@@ -248,8 +255,8 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 		"moves": [],
 		"items": [],
 		"links": {
-			"dark": [],
 			"light": [],
+			"dark": [],
 			"mastery": [],
 			"heart": []
 		},
@@ -389,7 +396,7 @@ async def sheet(ctx, full_detail: discord.Option(bool, "Sends the sheet with no 
 		moves_added += 1
 		n = move['name']
 		e = move['effect']
-		message += f"\n- **{n}**\n - {e}"
+		message += f"\n- **{n}**: {e}"
 	if moves_added <= 0:
 		message += "\n*No moves yet.*"
 
@@ -398,15 +405,18 @@ async def sheet(ctx, full_detail: discord.Option(bool, "Sends the sheet with no 
 	for link_type in character['links']:
 		amount = len(character['links'][link_type])
 		if amount > 0:
-			message += f"\n### {link_type.upper()} ({amount})"
+			message += f"\n**{type_to_symbol[link_type.lower()]} {link_type.title()}** ({amount}): "
+			list_of_links = []
 			for single_link in character['links'][link_type]:
 				links_added += 1
-				message += f"\n- {single_link['name']}"
+				formatted_link = single_link['name']
 				if single_link['locked']:
 					if single_link['spent']:
-						message += " 🔓"
+						formatted_link += " (🔓)"
 					else:
-						message += " 🔒"
+						formatted_link += " (🔒)"
+				list_of_links.append(formatted_link)
+			message += ", ".join(list_of_links)
 	if links_added <= 0:
 		message += "\n*No links formed yet.*"
 	
