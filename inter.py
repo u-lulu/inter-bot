@@ -700,56 +700,56 @@ async def remove_item(ctx,item: discord.Option(str, "The item to remove", requir
 	await save_character_data(str(ctx.author.id))
 
 @bot.command(description="Roll with Light with your active character")
-async def light(ctx, 
+async def roll_light(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'light')
 
 @bot.command(description="Roll with Dark with your active character")
-async def dark(ctx, 
+async def roll_dark(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'dark')
 
 @bot.command(description="Roll with Mastery with your active character")
-async def mastery(ctx, 
+async def roll_mastery(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'mastery')
 
 @bot.command(description="Roll with Heart with your active character")
-async def heart(ctx, 
+async def roll_heart(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'heart')
 
 @bot.command(description="Roll with Light Links with your active character")
-async def light_links(ctx, 
+async def roll_light_links(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'light', True)
 
 @bot.command(description="Roll with Dark Links with your active character")
-async def dark_links(ctx, 
+async def roll_dark_links(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'dark', True)
 
 @bot.command(description="Roll with Mastery Links with your active character")
-async def mastery_links(ctx, 
+async def roll_mastery_links(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
 	await roll_with_skill(ctx, modifier, advantage, 'mastery', True)
 
 @bot.command(description="Roll with Heart Links with your active character")
-async def heart_links(ctx, 
+async def roll_heart_links(ctx, 
 	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
 	):
