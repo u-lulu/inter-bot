@@ -423,7 +423,7 @@ async def sheet(ctx):
 	items_added = 0
 	for item in character['items']:
 		items_added += 1
-		message += f"- {item}"
+		message += f"\n- {item}"
 	if items_added <= 0:
 		message += "\n*No items yet.*"
 	
