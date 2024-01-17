@@ -364,7 +364,8 @@ async def my_characters(ctx):
 		await ctx.respond("You haven't created any characters yet.",ephemeral=True)
 	
 @bot.command(description="Displays your current active character's sheet")
-async def sheet(ctx, name: discord.Option(str, "The name of a specific character to view instead.", autocomplete=discord.utils.basic_autocomplete(character_names_autocomplete), required=False, default=""), full_detail: discord.Option(bool, "Sends the sheet with no information truncated.", required=False, default=False), qr: discord.Option(bool, "Sends a QR code of the final output instead.", required=False, default=False)):
+async def sheet(ctx, full_detail: discord.Option(bool, "Sends the sheet with no information truncated.", required=False, default=False),
+		qr: discord.Option(bool, "Sends a QR code of the final output instead.", required=False, default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
@@ -562,7 +563,10 @@ async def link_names_in_category(ctx):
 	return out
 
 @bot.command(description="Add an link to someone (or something) to your character")
-async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']), target: discord.Option(str, "The target of your link", required=True, max_length=100), locked: discord.Option(bool, "If the link is locked", default=False), spent: discord.Option(bool, "If the link is spent", default=False)):
+async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		target: discord.Option(str, "The target of your link", required=True, max_length=100),
+		locked: discord.Option(bool, "If the link is locked", default=False),
+		spent: discord.Option(bool, "If the link is spent", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
@@ -584,7 +588,8 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 	await save_character_data(str(ctx.author.id))
 
 @bot.command(description="Spend a link to someone (or something) to your character")
-async def spend_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
+async def spend_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
@@ -615,7 +620,10 @@ async def orig_target_autocomp(ctx):
 	return [ctx.options['original_target']]
 
 @bot.command(description="Edit an link to someone (or something) to your character")
-async def edit_link(ctx, link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']), original_target: discord.Option(str, "The target of your link", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category)), target: discord.Option(str, "The new name for your targeted link", required=True, autocomplete=discord.utils.basic_autocomplete(orig_target_autocomp)), locked: discord.Option(bool, "If the link is locked", default=False), spent: discord.Option(bool, "If the link is spent", default=False)):
+async def edit_link(ctx, link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		original_target: discord.Option(str, "The target of your link", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category)),
+		target: discord.Option(str, "The new name for your targeted link", required=True, autocomplete=discord.utils.basic_autocomplete(orig_target_autocomp)),
+		locked: discord.Option(bool, "If the link is locked", default=False), spent: discord.Option(bool, "If the link is spent", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
