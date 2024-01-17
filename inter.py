@@ -371,8 +371,7 @@ async def my_characters(ctx):
 		await ctx.respond("You haven't created any characters yet.",ephemeral=True)
 	
 @bot.command(description="Displays your current active character's sheet")
-async def sheet(ctx, full_detail: discord.Option(bool, "Sends the sheet with no information truncated.", required=False, default=False),
-		qr: discord.Option(bool, "Sends a QR code of the final output instead.", required=False, default=False)):
+async def sheet(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
