@@ -431,7 +431,7 @@ async def sheet(ctx):
 	
 	if len(message) > 2000:
 		filedata = io.BytesIO(message.encode('utf-8'))
-		await ctx.respond("sheet time", file=discord.File(filedata, filename=f'{name.lower()}.md'))
+		await ctx.respond("The message is too long to send. Please view the attached file.", file=discord.File(filedata, filename=f'{name.lower()}.md'))
 	else:
 		await ctx.respond(message)
 
