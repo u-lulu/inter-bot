@@ -173,6 +173,8 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
+
+	ctx.defer()
 	
 	inherent_bonus = character[stat.lower()] if not use_links else min(4,len(character['links'][stat.lower()]))
 	modifier = inherent_bonus + extra_mod
@@ -192,7 +194,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	
 	total = sum(results) + modifier
 	
-	message = f"**{name.upper()}** rolling +{stat.upper()}:\n> "
+	message = f"**{name.upper()}** rolling with {stat.title()}{' links' if use_links else ''}:\n> "
 	
 	if extra_mod != 0:
 		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({stat.lower()}{' links' if use_links else ''}) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
