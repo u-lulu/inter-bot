@@ -730,7 +730,7 @@ async def set_attribute(ctx,
 		return
 	charname = get_active_name(ctx)
 
-	character['attribute'] = new_value
+	character[attribute] = new_value
 
 	await ctx.respond(f"{charname.upper()}'s **{type_to_symbol[attribute.lower()]} {attribute.title()}** score is now **{'+' if new_value >= 0 else ''}{new_value}**.")
 	await save_character_data(str(ctx.author.id))
