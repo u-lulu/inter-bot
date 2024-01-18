@@ -197,9 +197,9 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	message = f"**{name.upper()}** rolling with {stat.title()}{' links' if use_links else ''}:\n> "
 	
 	if extra_mod != 0:
-		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({stat.lower()}{' links' if use_links else ''}) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
+		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''}) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
 	else:
-		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({stat.lower()}{' links' if use_links else ''}) = **{total}**: "
+		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''}) = **{total}**: "
 	
 	save_necessary = False
 
@@ -710,61 +710,31 @@ async def remove_item(ctx,item: discord.Option(str, "The item to remove", requir
 	await ctx.respond(f"**{name.upper()}** has __removed__ **{item}** to their inventory.")
 	await save_character_data(str(ctx.author.id))
 
-@bot.command(description="Roll with Light with your active character")
-async def roll_light(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'light')
+@bot.command(description="Roll with your active character")
+async def roll(ctx,
+		attribute: discord.Option(str, "The attribute to use for the roll", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		roll_with_links: discord.Option(bool, "Roll with links instead of using an attribute score", required=False, default=False),
+		modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
+		advantage: discord.Option(bool, "Roll 3d6 and take the best two", required=False, default=False)
+		):
+	await roll_with_skill(ctx, modifier, advantage, attribute, roll_with_links)
 
-@bot.command(description="Roll with Dark with your active character")
-async def roll_dark(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'dark')
+@bot.command(description="Set the value for an attribute")
+async def set_attribute(ctx,
+		attribute: discord.Option(str, "The attribute to change", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		new_value: discord.Option(int, required=True)
+		):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	charname = get_active_name(ctx)
 
-@bot.command(description="Roll with Mastery with your active character")
-async def roll_mastery(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'mastery')
+	character['attribute'] = new_value
 
-@bot.command(description="Roll with Heart with your active character")
-async def roll_heart(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'heart')
-
-@bot.command(description="Roll with Light Links with your active character")
-async def roll_light_links(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'light', True)
-
-@bot.command(description="Roll with Dark Links with your active character")
-async def roll_dark_links(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'dark', True)
-
-@bot.command(description="Roll with Mastery Links with your active character")
-async def roll_mastery_links(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'mastery', True)
-
-@bot.command(description="Roll with Heart Links with your active character")
-async def roll_heart_links(ctx, 
-	modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	await roll_with_skill(ctx, modifier, advantage, 'heart', True)
+	await ctx.respond(f"{charname.upper()}'s **{type_to_symbol[attribute.lower()]} {attribute.title()}** score is now **{'+' if new_value >= 0 else ''}{new_value}**.")
+	await save_character_data(str(ctx.author.id))
+	return
 
 @bot.command(description="Add a Move to your active character")
 async def add_move(ctx, name: discord.Option(str,"The name of the move.",required=True,max_length=100), effect: discord.Option(str,"The effect of the move.",required=True)):
@@ -892,45 +862,6 @@ async def heal(ctx, amount: discord.Option(int,"The amount of harm to remove.",r
 
 log("Creating player commands")
 player_group = discord.SlashCommandGroup("player", "Player Commands")
-
-@player_group.command(description="Rolls a skill check")
-async def roll(ctx, 
-	modifier: discord.Option(int, "The skill modifier for the roll", required=False, default=0),
-	advantage: discord.Option(bool, "Roll 3d6 and take the best two.", required=False, default=False)
-	):
-	#log(f"/player roll {modifier}{' advantage' if advantage else ''}{' inferior_dice' if inferior_dice else ''}")
-	results = [d6(), d6()]
-	if advantage:
-		results.append(d6())
-		
-	original_results = deepcopy(results)
-	
-	dice_string = ""
-	for d in results:
-		dice_string += " " + num_to_die[d]
-	dice_string = dice_string.strip()
-	
-	full_results = sorted(results)
-	if advantage:
-		results = full_results[-2:]
-	
-	total = sum(results) + modifier
-	
-	message = ""
-	
-	if modifier != 0:
-		message = f"({dice_string}) + {modifier} = **{total}**: "
-	else:
-		message = f"{dice_string} = **{total}**: "
-	
-	if total <= 6:
-		message += "You **fail** in what you're attempting."
-	elif total <= 9:
-		message += "You **partially succeed** in what you're attempting."
-	else:
-		message += "You **succeed** in what you're attempting."
-	
-	await ctx.respond(message)
 
 def roll_multiple_dice(syntax, amount):
 	out = []
