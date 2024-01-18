@@ -382,7 +382,7 @@ async def sheet(ctx):
 
 	message = f"# {name.upper()}"
 
-	message += "\n## Stats"
+	message += "\n## __STATS__"
 	message += f"\n🩹 Harm: {character['harm']}/4"
 	message += f"\n✨ Experience: {character['xp']}/5"
 	message += f"\n🎖️ Advancements: {character['level']}"
@@ -391,17 +391,17 @@ async def sheet(ctx):
 	message += f"\n💚 Mastery: {character['mastery']}"
 	message += f"\n💙 Heart: {character['heart']}"
 
-	message += "\n## Moves"
+	message += "\n## __MOVES__"
 	moves_added = 0
 	for move in character['moves']:
 		moves_added += 1
 		n = move['name']
 		e = move['effect']
-		message += f"\n- **{n}**: {e}"
+		message += f"\n### **{n}**\n{e}"
 	if moves_added <= 0:
 		message += "\n*No moves yet.*"
 
-	message += "\n## Links"
+	message += "\n## __LINKS__"
 	links_added = 0
 	for link_type in character['links']:
 		amount = len(character['links'][link_type])
@@ -421,7 +421,7 @@ async def sheet(ctx):
 	if links_added <= 0:
 		message += "\n*No links formed yet.*"
 	
-	message += "\n## Items"
+	message += "\n## __ITEMS__"
 	items_added = 0
 	for item in character['items']:
 		items_added += 1
