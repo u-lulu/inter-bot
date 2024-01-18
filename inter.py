@@ -584,7 +584,7 @@ async def link_names_in_category(ctx):
 		out.append(l['name'])
 	return out
 
-@bot.command(description="Add an link to someone (or something) to your character")
+@bot.command(description="Add a link to your active character")
 async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
 		target: discord.Option(str, "The target of your link", required=True, max_length=100),
 		locked: discord.Option(bool, "If the link is locked", default=False),
@@ -597,7 +597,7 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 
 	for existing_link in character['links'][link]:
 		if target.lower() == existing_link['name'].lower():
-			await ctx.respond(f"{name.upper()} already has a **{link}** link with **{target}**.",ephemeral=True)
+			await ctx.respond(f"{name.upper()} already has a **{link.title()}** link with **{target}**.",ephemeral=True)
 			return
 	
 	character['links'][link].append({
@@ -606,10 +606,10 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 		"spent": spent
 	})
 
-	await ctx.respond(f"{name.upper()} now has a **{link}** link with **{target}**.")
+	await ctx.respond(f"{name.upper()} now has a **{link.title()}** link with **{target}**.")
 	await save_character_data(str(ctx.author.id))
 
-@bot.command(description="Spend a link to someone (or something) to your character")
+@bot.command(description="Spend a link from your active character")
 async def spend_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
 		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
 	character = get_active_char_object(ctx)
@@ -622,20 +622,68 @@ async def spend_link(ctx,link: discord.Option(str, "The type of link", required=
 		if target.lower() == existing_link['name'].lower():
 			if existing_link['locked']:
 				if existing_link['spent']:
-					await ctx.respond(f"{name.upper()} has already spent their {link} link with {existing_link['name']}.\nIt can be reactivated by rolling a 10+ with {link}.",ephemeral=True)
+					await ctx.respond(f"{name.upper()} has already spent their {link.title()} link with {existing_link['name']}.\nIt can be reactivated by rolling a 10+ with {link.title()}.",ephemeral=True)
 					return
 				else:
 					existing_link['spent'] = True
-					await ctx.respond(f"{name.upper()} has spent their locked {link} link with {existing_link['name']}!\nIt can be reactivated by rolling a 10+ with {link}.")
+					await ctx.respond(f"{name.upper()} has spent their locked {link.title()} link with {existing_link['name']}!\nIt can be reactivated by rolling a 10+ with {link.title()}.")
 					await save_character_data(str(ctx.author.id))
 					return
 			else:
 				character['links'][link].remove(existing_link)
-				await ctx.respond(f"{name.upper()} has spent their {link} link with {existing_link['name']}!\nThis link will need to be re-established before it can be used again.")
+				await ctx.respond(f"{name.upper()} has spent their {link.title()} link with {existing_link['name']}!\nThis link will need to be re-established before it can be used again.")
 				await save_character_data(str(ctx.author.id))
 				return
 	
-	await ctx.respond(f"{name.upper()} does not currently have a {link} link with anyone or anything named {target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
+	return
+
+@bot.command(description="Lock one of your active character's links")
+async def lock_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	name = get_active_name(ctx)
+
+	for existing_link in character['links'][link]:
+		if target.lower() == existing_link['name'].lower():
+			if existing_link['locked']:
+				await ctx.respond(f"{name.upper()} has already locked their {link.title()} link with {existing_link['name']}.",ephemeral=True)
+				return
+			else:
+				existing_link['locked'] = True
+				existing_link['spent'] = False
+				await ctx.respond(f"🔒 {name.upper()} has locked their {link.title()} link with {existing_link['name']}!")
+				await save_character_data(str(ctx.author.id))
+				return
+	
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
+	return
+
+@bot.command(description="Lock one of your active character's links")
+async def unlock_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	name = get_active_name(ctx)
+
+	for existing_link in character['links'][link]:
+		if target.lower() == existing_link['name'].lower():
+			if not existing_link['locked']:
+				await ctx.respond(f"{name.upper()}'s {link.title()} link with {existing_link['name']} is not locked.",ephemeral=True)
+				return
+			else:
+				existing_link['locked'] = False
+				existing_link['spent'] = False
+				await ctx.respond(f"{name.upper()} has unlocked their {link.title()} link with {existing_link['name']}!")
+				await save_character_data(str(ctx.author.id))
+				return
+	
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
 	return
 
 async def orig_target_autocomp(ctx):
@@ -660,10 +708,10 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 				"locked": locked,
 				"spent": spent
 			}
-			await ctx.respond(f"You have edited one of {name.upper()}'s {link} links.\nName: {old_link['name']} -> **{target}**\nLocked: {old_link['locked']} -> **{locked}**\nSpent: {old_link['spent']} -> **{spent}**")
+			await ctx.respond(f"You have edited one of {name.upper()}'s {link.title()} links.\nName: {old_link['name']} -> **{target}**\nLocked: {old_link['locked']} -> **{locked}**\nSpent: {old_link['spent']} -> **{spent}**")
 			await save_character_data(str(ctx.author.id))
 			return
-	await ctx.respond(f"{name.upper()} does not currently have a {link} link with anyone or anything named {original_target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {original_target}.")
 	return
 
 @bot.command(description="Add an item your active character")
