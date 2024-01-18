@@ -197,9 +197,9 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	message = f"**{name.upper()}** rolling with {stat.title()}{' links' if use_links else ''}:\n> "
 	
 	if extra_mod != 0:
-		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''}) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
+		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ( {type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''} ) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
 	else:
-		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ({type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''}) = **{total}**: "
+		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ( {type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''} ) = **{total}**: "
 	
 	save_necessary = False
 
@@ -218,7 +218,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 			message += "\nThe following links have been restored:"
 			for l in links_reinstated:
 				message += f"\n- {l}"
-		save_necessary = True
+			save_necessary = True
 			
 	await ctx.respond(message)
 	if save_necessary:
@@ -247,6 +247,8 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 		return
 	
 	character_data[userid]["chars"][name] = {
+		"playbook": None,
+		"pronouns": None,
 		"harm": 0,
 		"xp": 0,
 		"level": 0,
@@ -381,15 +383,24 @@ async def sheet(ctx):
 	name = get_active_name(ctx)
 
 	message = f"# {name.upper()}"
+	if character['playbook'] is None:
+		message += f"\nPlaybook: *Not set.*"
+	else:
+		message += f"\nPlaybook: {character['playbook']}"
+
+	if character['pronouns'] is None:
+		message += f"\nPronouns: *Not set.*"
+	else:
+		message += f"\nPronouns: {character['pronouns']}"
 
 	message += "\n## __STATS__"
 	message += f"\n🩹 Harm: {character['harm']}/4"
 	message += f"\n✨ Experience: {character['xp']}/5"
 	message += f"\n🎖️ Advancements: {character['level']}"
-	message += f"\n💛 Light: {character['light']}"
-	message += f"\n💔 Dark: {character['dark']}"
-	message += f"\n💚 Mastery: {character['mastery']}"
-	message += f"\n💙 Heart: {character['heart']}"
+	message += f"\n💛 Light: {'+' if character['light'] >= 0 else ''}{character['light']}"
+	message += f"\n💔 Dark: {'+' if character['dark'] >= 0 else ''}{character['dark']}"
+	message += f"\n💚 Mastery: {'+' if character['mastery'] >= 0 else ''}{character['mastery']}"
+	message += f"\n💙 Heart: {'+' if character['heart'] >= 0 else ''}{character['heart']}"
 
 	message += "\n## __MOVES__"
 	moves_added = 0
@@ -719,10 +730,60 @@ async def roll(ctx,
 		):
 	await roll_with_skill(ctx, modifier, advantage, attribute, roll_with_links)
 
-@bot.command(description="Set the value for an attribute")
+@bot.command(description="Set your active character's playbook")
+async def set_playbook(ctx,
+		playbook: discord.Option(str, "The playbook's name", required=True),
+		light: discord.Option(int, "The playbook's Light score", required=True),
+		dark: discord.Option(int, "The playbook's Dark score", required=True),
+		mastery: discord.Option(int, "The playbook's Mastery score", required=True),
+		heart: discord.Option(int, "The playbook's Heart score", required=True),
+		):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	charname = get_active_name(ctx)
+
+	character['playbook'] = playbook
+	character['light'] = light
+	character['dark'] = dark
+	character['mastery'] = mastery
+	character['heart'] = heart
+
+	message = f"{charname.upper()}'s playbook is now **{playbook}**.\nTheir new attribute scores are:"
+	message += f"\n💛 Light: {'+' if character['light'] >= 0 else ''}{character['light']}"
+	message += f"\n💔 Dark: {'+' if character['dark'] >= 0 else ''}{character['dark']}"
+	message += f"\n💚 Mastery: {'+' if character['mastery'] >= 0 else ''}{character['mastery']}"
+	message += f"\n💙 Heart: {'+' if character['heart'] >= 0 else ''}{character['heart']}"
+
+	await ctx.respond(message)
+	await save_character_data(str(ctx.author.id))
+	return
+
+sample_pronouns = ["they/them","she/her","he/him","it/its","any pronouns","unspecified pronouns","no pronouns","ae/aer","bun/buns","e/em","ey/em","fae/faer","liv/lir","mer/merm","nya/nyas","pup/pups","shi/hir","sie/hir","v/v","ve/ver","xe/xem","ze/zir"]
+
+async def pronouns_autocomplete(ctx):
+	return sample_pronouns
+
+@bot.command(description="Set your active character's pronouns")
+async def set_pronouns(ctx,
+		pronouns: discord.Option(str, "The pronouns to set", required=True, autocomplete=discord.utils.basic_autocomplete(pronouns_autocomplete), max_length=30)):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	charname = get_active_name(ctx)
+
+	character['pronouns'] = pronouns
+
+	await ctx.respond(f"{charname.upper()} now goes by the pronouns **{pronouns}**.")
+	await save_character_data(str(ctx.author.id))
+	return
+
+@bot.command(description="Set the value for one of your character's attributes")
 async def set_attribute(ctx,
 		attribute: discord.Option(str, "The attribute to change", required=True, choices=['dark', 'light', 'mastery', 'heart']),
-		new_value: discord.Option(int, required=True)
+		new_value: discord.Option(int, "The new value for the attribute", required=True)
 		):
 	character = get_active_char_object(ctx)
 	if character == None:
