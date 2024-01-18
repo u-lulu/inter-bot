@@ -368,7 +368,7 @@ async def my_characters(ctx):
 			msg = msg.replace("*","")
 			filedata = io.BytesIO(msg.encode('utf-8'))
 			await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
-			log("Sent character sheet as file")
+			log("Sent character list as file")
 		else:
 			await ctx.respond(msg)
 	else:
