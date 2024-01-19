@@ -586,8 +586,7 @@ async def link_names_in_category(ctx):
 @bot.command(description="Add a link to your active character")
 async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
 		target: discord.Option(str, "The target of your link", required=True, max_length=100),
-		locked: discord.Option(bool, "If the link is locked", default=False),
-		spent: discord.Option(bool, "If the link is spent", default=False)):
+		locked: discord.Option(bool, "If the link is locked", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
@@ -602,10 +601,10 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 	character['links'][link].append({
 		"name": target,
 		"locked": locked,
-		"spent": spent
+		"spent": False
 	})
 
-	await ctx.respond(f"{name.upper()} now has a **{link.title()}** link with **{target}**.")
+	await ctx.respond(f"{name.upper()} now has a {'Locked ' if locked else ''}**{link.title()}** link with **{target}**.")
 	await save_character_data(str(ctx.author.id))
 
 @bot.command(description="Spend a link from your active character")
@@ -777,13 +776,16 @@ async def roll(ctx,
 		):
 	await roll_with_skill(ctx, modifier, advantage, attribute, roll_with_links)
 
+async def attr_num_autocomp(ctx):
+	return [0,1,2,-1,-2]
+
 @bot.command(description="Set your active character's playbook")
 async def set_playbook(ctx,
 		playbook: discord.Option(str, "The playbook's name", required=True),
-		light: discord.Option(int, "The playbook's Light score", required=True),
-		dark: discord.Option(int, "The playbook's Dark score", required=True),
-		mastery: discord.Option(int, "The playbook's Mastery score", required=True),
-		heart: discord.Option(int, "The playbook's Heart score", required=True),
+		light: discord.Option(int, "The playbook's Light score", required=True, autocomplete=discord.utils.basic_autocomplete(attr_num_autocomp)),
+		dark: discord.Option(int, "The playbook's Dark score", required=True, autocomplete=discord.utils.basic_autocomplete(attr_num_autocomp)),
+		mastery: discord.Option(int, "The playbook's Mastery score", required=True, autocomplete=discord.utils.basic_autocomplete(attr_num_autocomp)),
+		heart: discord.Option(int, "The playbook's Heart score", required=True, autocomplete=discord.utils.basic_autocomplete(attr_num_autocomp)),
 		):
 	character = get_active_char_object(ctx)
 	if character == None:
