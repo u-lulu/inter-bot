@@ -271,6 +271,7 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 	msg += f"\nYou now have {len(character_data[userid]['chars'])} characters."
 	await ctx.respond(msg)
 	await switch_character(ctx, name)
+	return
 
 @bot.command(description="Rename an existing character")
 async def rename(ctx,
@@ -510,7 +511,7 @@ async def edit_notes(ctx):
 	await ctx.send_modal(modal)
 
 @bot.command(description="Switch which character is active in this channel")
-async def switch_character(ctx, name: discord.Option(str, "The name of the character to switch to.", autocomplete=discord.utils.basic_autocomplete(character_names_autocomplete), required=True),save:bool=True):
+async def switch_character(ctx, name: discord.Option(str, "The name of the character to switch to.", autocomplete=discord.utils.basic_autocomplete(character_names_autocomplete), required=True)):
 	userid = str(ctx.author.id)
 	if userid not in character_data or len(character_data[userid]['chars']) <= 0:
 		await ctx.respond("You have no characters available. Use `/create_character` to make one.",ephemeral=True)
@@ -523,8 +524,6 @@ async def switch_character(ctx, name: discord.Option(str, "The name of the chara
 	else:
 		character_data[userid]['active'][str(ctx.channel_id)] = name
 		await ctx.respond(f"Your active character in this channel is now **{name.upper()}**.")
-		if save:
-			await save_character_data(str(ctx.author.id))
 	return
 
 @bot.command(description="Check your current active character")
