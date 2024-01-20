@@ -636,6 +636,99 @@ async def link_names_in_category(ctx):
 		out.append(l['name'])
 	return out
 
+@bot.command(description="Roll to make a link with your active character")
+async def make_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		target: discord.Option(str, "The target of your link", required=True, max_length=100),
+		locked: discord.Option(bool, "If the link is locked", default=False),
+		modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
+		advantage: discord.Option(bool, "Roll 3d6 and take the best two", required=False, default=False)
+		):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	name = get_active_name(ctx)
+
+	for existing_link in character['links'][link]:
+		if target.lower() == existing_link['name'].lower():
+			await ctx.respond(f"{name.upper()} already has a **{link.title()}** link with **{target}**.",ephemeral=True)
+			return
+	
+	await ctx.defer()
+
+	stats = [character['dark'],character['light'],character['mastery'],character['heart']]
+	highest_stat = max(stats)
+	lowest_stat = min(stats)
+
+	upper_bonus = character[link] == highest_stat
+	lower_bonus = character[link] == lowest_stat
+
+	d = [d6(),d6()]
+	if advantage:
+		d.append(d6())
+	result = sum(sorted(d)[1:]) + modifier
+	if upper_bonus:
+		result += 1
+
+	d_string = []
+	for i in d:
+		d_string.append(num_to_die[i])
+	d_string = ' '.join(d_string)
+
+	message = f"{name.upper()} rolls to make a {'Locked ' if locked else ''}**{link.title()}** link with **{target}**:\n> "
+	message += f"({d_string})"
+	if upper_bonus:
+		message += " + 1 (highest attribute)"
+	if modifier > 0:
+		message += f" + {modifier} (bonus)"
+	elif modifier < 0:
+		message += f" - {abs(modifier)} (penalty)"
+	message += f" = **{result}**."
+
+	save_required = False
+	xp_gain = 1 if lower_bonus else 0
+
+	if result >= 10:
+		save_required = True
+		character['links'][link].append({
+			"name": target,
+			"locked": locked,
+			"spent": False
+		})
+		message += " You both get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
+	elif result >= 7:
+		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\n*Once you have made a choice, add the Link with `/add_link`.*"
+	else:
+		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\n*Add the Link the GM gives you with `/add_link`.*"
+		xp_gain = 2
+	
+	if xp_gain != 0:
+		save_required = True
+		character['xp'] += xp_gain
+		level_change = 0
+		while character['xp'] >= 5:
+			level_change += 1
+			character['xp'] -= 5
+		while character['xp'] < 0:
+			level_change -= 1
+			character['xp'] += 5
+		character['level'] += level_change
+
+		message += f"\n{name.upper()} has gained {xp_gain} Experience."
+		if level_change > 1:
+			message += f"\n**💖 They have gained {level_change} advancements!**"
+		elif level_change == 1:
+			message += f"\n**💖 They have gained an advancement!**"
+		elif level_change == -1:
+			message += f"\n**💔 They have lost an an advancement.**"
+		elif level_change < -1:
+			message += f"\n**💔 They have lost {abs(level_change)} advancements.**"
+		message += f"\nTheir Experience track is now at **{character['xp']}/5**.\nThey have {character['level']} advancements."
+
+	await ctx.respond(message)
+	if save_required:
+		await save_character_data(str(ctx.author.id))
+
 @bot.command(description="Add a link to your active character")
 async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
 		target: discord.Option(str, "The target of your link", required=True, max_length=100),
