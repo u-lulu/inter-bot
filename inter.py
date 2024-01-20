@@ -212,16 +212,17 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 		message += "You **partially succeed** in what you're attempting."
 	else:
 		message += "You **succeed** in what you're attempting."
-		links_reinstated = []
-		for link in character['links'][stat.lower()]:
-			if link['spent']:
-				link['spent'] = False
-				links_reinstated.append(link['name'])
-		if len(links_reinstated) > 0:
-			message += "\nThe following links have been restored:"
-			for l in links_reinstated:
-				message += f"\n- {l}"
-			save_necessary = True
+		if stat != 'none':
+			links_reinstated = []
+			for link in character['links'][stat.lower()]:
+				if link['spent']:
+					link['spent'] = False
+					links_reinstated.append(link['name'])
+			if len(links_reinstated) > 0:
+				message += "\nThe following links have been restored:"
+				for l in links_reinstated:
+					message += f"\n- {l}"
+				save_necessary = True
 			
 	await ctx.respond(message)
 	if save_necessary:
