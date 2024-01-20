@@ -205,11 +205,30 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ( {type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''} ) = **{total}**: "
 	
 	save_necessary = False
-	exp_necessary = False
 
 	if total <= 6:
 		message += "You **fail** in what you're attempting."
-		exp_necessary = True
+		character['xp'] += 1
+		save_necessary = True
+		level_change = 0
+		while character['xp'] >= 5:
+			level_change += 1
+			character['xp'] -= 5
+		while character['xp'] < 0:
+			level_change -= 1
+			character['xp'] += 5
+		character['level'] += level_change
+
+		message += f"\n{name.upper()} has gained 1 Experience."
+		if level_change > 1:
+			message += f"\n**💖 They have gained {level_change} advancements!**"
+		elif level_change == 1:
+			message += f"\n**💖 They have gained an advancement!**"
+		elif level_change == -1:
+			message += f"\n**💔 They have lost an an advancement.**"
+		elif level_change < -1:
+			message += f"\n**💔 They have lost {abs(level_change)} advancements.**"
+		message += f"\nTheir Experience track is now at **{character['xp']}/5**.\nThey have {character['level']} advancements."
 	elif total <= 9:
 		message += "You **partially succeed** in what you're attempting."
 	else:
@@ -227,10 +246,8 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 				save_necessary = True
 			
 	await ctx.respond(message)
-	if save_necessary and not exp_necessary:
+	if save_necessary:
 		await save_character_data(str(ctx.author.id))
-	if exp_necessary:
-		await experience(ctx,1)
 
 async def character_names_autocomplete(ctx: discord.AutocompleteContext):
 	uid = str(ctx.interaction.user.id)
