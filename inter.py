@@ -41,7 +41,8 @@ type_to_symbol = {
 	'light': '💛',
 	'dark': '💔',
 	'mastery': '💚',
-	'heart': '💙'
+	'heart': '💙',
+	'none': 'flat'
 }
 
 log("Defining helper functions")
@@ -176,7 +177,9 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 
 	ctx.defer()
 	
-	inherent_bonus = character[stat.lower()] if not use_links else min(4,len(character['links'][stat.lower()]))
+	inherent_bonus = 0 if stat == 'none' else (character[stat.lower()] if not use_links else min(4,len(character['links'][stat.lower()])))
+	if stat == 'none':
+		use_links = False
 	modifier = inherent_bonus + extra_mod
 	
 	results = [d6(), d6()]
@@ -769,7 +772,7 @@ async def remove_item(ctx,item: discord.Option(str, "The item to remove", requir
 
 @bot.command(description="Roll with your active character")
 async def roll(ctx,
-		attribute: discord.Option(str, "The attribute to use for the roll", required=True, choices=['dark', 'light', 'mastery', 'heart']),
+		attribute: discord.Option(str, "The attribute to use for the roll", required=True, choices=['dark', 'light', 'mastery', 'heart', 'none']),
 		roll_with_links: discord.Option(bool, "Roll with links instead of using an attribute score", required=False, default=False),
 		modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 		advantage: discord.Option(bool, "Roll 3d6 and take the best two", required=False, default=False)
