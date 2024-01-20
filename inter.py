@@ -271,6 +271,8 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 		await ctx.respond(f"You have already created a character with the name '{name}'.",ephemeral=True)
 		return
 
+	await ctx.defer()
+	
 	character_data[userid]["chars"][name] = {
 		"playbook": None,
 		"pronouns": None,
