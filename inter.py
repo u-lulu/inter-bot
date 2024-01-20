@@ -666,7 +666,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 	d = [d6(),d6()]
 	if advantage:
 		d.append(d6())
-	result = sum(sorted(d)[1:]) + modifier
+	result = sum(sorted(d)[-2:]) + modifier
 	if upper_bonus:
 		result += 1
 
