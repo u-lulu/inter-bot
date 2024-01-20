@@ -236,7 +236,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 		if stat != 'none':
 			links_reinstated = []
 			for link in character['links'][stat.lower()]:
-				if link['spent']:
+				if link['spent'] and link['locked']:
 					link['spent'] = False
 					links_reinstated.append(link['name'])
 			if len(links_reinstated) > 0:
