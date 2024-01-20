@@ -500,6 +500,41 @@ async def inventory(ctx):
 	else:
 		await ctx.respond(message)
 
+@bot.command(description="Show your active character's links")
+async def links(ctx):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	name = get_active_name(ctx)
+	await ctx.defer()
+	message = f"**{name.upper()}**'s links:"
+	links_added = 0
+	for link_type in character['links']:
+		amount = len(character['links'][link_type])
+		if amount > 0:
+			message += f"\n**{type_to_symbol[link_type.lower()]} {link_type.title()}** ({amount}): "
+			list_of_links = []
+			for single_link in character['links'][link_type]:
+				links_added += 1
+				formatted_link = single_link['name']
+				if single_link['locked']:
+					if single_link['spent']:
+						formatted_link += " (🔓)"
+					else:
+						formatted_link += " (🔒)"
+				list_of_links.append(formatted_link)
+			message += ", ".join(list_of_links)
+	if links_added <= 0:
+		message += "\n*No links formed yet.*"
+	if len(message) > 2000:
+		message = message.replace("*","").replace("# ","")
+		filedata = io.BytesIO(message.encode('utf-8'))
+		await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
+		log("Sent inventory as file")
+	else:
+		await ctx.respond(message)
+
 @bot.command(description="Show your active character's moves")
 async def moves(ctx):
 	character = get_active_char_object(ctx)
