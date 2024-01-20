@@ -675,7 +675,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		d_string.append(num_to_die[i])
 	d_string = ' '.join(d_string)
 
-	message = f"{name.upper()} rolls to make a {'Locked ' if locked else ''}**{link.title()}** link with **{target}**:\n> "
+	message = f"{name.upper()} rolls to make a {'Locked ' if locked else ''}**{link.title()}** link with **{target}**:\n>>> "
 	message += f"({d_string})"
 	if upper_bonus:
 		message += " + 1 (highest attribute)"
@@ -697,9 +697,9 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		})
 		message += " You both get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
 	elif result >= 7:
-		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\n*Once you have made a choice, add the Link with `/add_link`.*"
+		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with `/add_link`.*"
 	else:
-		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\n*Add the Link the GM gives you with `/add_link`.*"
+		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\nℹ️ *Add the Link the GM gives you with `/add_link`.*"
 		xp_gain = 2
 	
 	if xp_gain != 0:
@@ -714,7 +714,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 			character['xp'] += 5
 		character['level'] += level_change
 
-		message += f"\n{name.upper()} has gained {xp_gain} Experience."
+		message += f"\n\n{name.upper()} has gained {xp_gain} Experience."
 		if level_change > 1:
 			message += f"\n**💖 They have gained {level_change} advancements!**"
 		elif level_change == 1:
