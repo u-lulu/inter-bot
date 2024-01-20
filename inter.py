@@ -248,6 +248,8 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 	if name in character_data[userid]["chars"]:
 		await ctx.respond(f"You have already created a character with the name '{name}'.",ephemeral=True)
 		return
+
+	ctx.defer()
 	
 	character_data[userid]["chars"][name] = {
 		"playbook": None,
@@ -292,6 +294,8 @@ async def rename(ctx,
 		await ctx.respond(f"You have already created a character with the name '{new_name}'.",ephemeral=True)
 		return
 	
+	ctx.defer()
+	
 	character_data[userid]['chars'][new_name] = deepcopy(character_data[userid]['chars'][name])
 	del character_data[userid]['chars'][name]
 	
@@ -315,6 +319,7 @@ async def delete_character(ctx, name: discord.Option(str, "The character's name,
 		await ctx.respond(f"You do not have a character named '{name}' to delete.",ephemeral=True)
 		return
 	else:
+		ctx.defer()
 		class DeleteConfirm(discord.ui.View):
 			@discord.ui.button(label="Cancel deletion", style=discord.ButtonStyle.green, emoji="🔙")
 			async def stop_deletion_callback(self, button, interaction):
@@ -385,6 +390,7 @@ async def sheet(ctx):
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
+	ctx.defer()
 
 	message = f"# {name.upper()}"
 	if character['playbook'] is None:
@@ -457,6 +463,7 @@ async def inventory(ctx):
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
+	ctx.defer()
 	message = f"**{name.upper()}**'s inventory:"
 	if len(character['items']) <= 0:
 		message = f"**{name.upper()}** has no items in their inventory."
@@ -467,10 +474,6 @@ async def inventory(ctx):
 		message = message.replace("*","").replace("# ","")
 		filedata = io.BytesIO(message.encode('utf-8'))
 		await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
-		# with open("message.txt","w") as file:
-		# 	file.write(message)
-		# await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File('message.txt'))
-		# os.remove('message.txt')
 		log("Sent inventory as file")
 	else:
 		await ctx.respond(message)
@@ -486,6 +489,7 @@ async def view_notes(ctx, hide_output: discord.Option(bool, "Hides the output me
 	if len(note) <= 0:
 		await ctx.respond(f"You have not written any notes for **{name.upper()}**.",ephemeral=True)
 	else:
+		ctx.defer()
 		message = f"Notes for **{name.upper()}**:\n>>> {note}"
 		await ctx.respond(message,ephemeral=hide_output)
 
@@ -496,6 +500,7 @@ async def edit_notes(ctx):
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
+	ctx.defer()
 	note = character['notes']
 
 	class NotesModal(discord.ui.Modal):
@@ -525,6 +530,7 @@ async def switch_character(ctx, name: discord.Option(str, "The name of the chara
 		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with `/list`. Check your spelling, or try creating a new one with `/create_character`.",ephemeral=True)
 		return
 	else:
+		ctx.defer()
 		character_data[userid]['active'][str(ctx.channel_id)] = name
 		await ctx.respond(f"Your active character in this channel is now **{name.upper()}**.")
 	return
@@ -540,6 +546,7 @@ async def active_character(ctx, show_all: discord.Option(bool, "If TRUE, lists a
 			if len(message) < 2000:
 				await ctx.respond(message,ephemeral=True)
 			else:
+				ctx.defer()
 				message = f"Your characters are active in the following {len(your_actives)} channels:"
 				for channel in your_actives:
 					try:
@@ -549,10 +556,6 @@ async def active_character(ctx, show_all: discord.Option(bool, "If TRUE, lists a
 					except Exception as e:
 						log(f"Could not resolve name of channel {channel}")
 						message += f"\n- Unknown channel ({channel}) -> {your_actives[channel].upper()}"
-				# with open("message.txt","w") as file:
-				# 	file.write(message)
-				# await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File('message.txt'),ephemeral=True)
-				# os.remove('message.txt')
 				filedata = io.BytesIO(message.encode('utf-8'))
 				await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
 				log("Sent actives list as file")
@@ -601,6 +604,8 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 			await ctx.respond(f"{name.upper()} already has a **{link.title()}** link with **{target}**.",ephemeral=True)
 			return
 	
+	ctx.defer()
+
 	character['links'][link].append({
 		"name": target,
 		"locked": locked,
@@ -626,17 +631,19 @@ async def spend_link(ctx,link: discord.Option(str, "The type of link", required=
 					await ctx.respond(f"{name.upper()} has already spent their {link.title()} link with {existing_link['name']}.\nIt can be reactivated by rolling a 10+ with {link.title()}.",ephemeral=True)
 					return
 				else:
+					ctx.defer()
 					existing_link['spent'] = True
 					await ctx.respond(f"{name.upper()} has spent their locked {link.title()} link with {existing_link['name']}!\nIt can be reactivated by rolling a 10+ with {link.title()}.")
 					await save_character_data(str(ctx.author.id))
 					return
 			else:
+				ctx.defer()
 				character['links'][link].remove(existing_link)
 				await ctx.respond(f"{name.upper()} has spent their {link.title()} link with {existing_link['name']}!\nThis link will need to be re-established before it can be used again.")
 				await save_character_data(str(ctx.author.id))
 				return
 	
-	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.",ephemeral=True)
 	return
 
 @bot.command(description="Lock one of your active character's links")
@@ -654,13 +661,14 @@ async def lock_link(ctx,link: discord.Option(str, "The type of link", required=T
 				await ctx.respond(f"{name.upper()} has already locked their {link.title()} link with {existing_link['name']}.",ephemeral=True)
 				return
 			else:
+				ctx.defer()
 				existing_link['locked'] = True
 				existing_link['spent'] = False
 				await ctx.respond(f"🔒 {name.upper()} has locked their {link.title()} link with {existing_link['name']}!")
 				await save_character_data(str(ctx.author.id))
 				return
 	
-	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.",ephemeral=True)
 	return
 
 @bot.command(description="Lock one of your active character's links")
@@ -678,13 +686,14 @@ async def unlock_link(ctx,link: discord.Option(str, "The type of link", required
 				await ctx.respond(f"{name.upper()}'s {link.title()} link with {existing_link['name']} is not locked.",ephemeral=True)
 				return
 			else:
+				ctx.defer()
 				existing_link['locked'] = False
 				existing_link['spent'] = False
 				await ctx.respond(f"{name.upper()} has unlocked their {link.title()} link with {existing_link['name']}!")
 				await save_character_data(str(ctx.author.id))
 				return
 	
-	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {target}.",ephemeral=True)
 	return
 
 async def orig_target_autocomp(ctx):
@@ -703,6 +712,7 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 
 	for i in range(len(character['links'][link])):
 		if original_target.lower() == character['links'][link][i]['name'].lower():
+			ctx.defer()
 			old_link = character['links'][link][i]
 			character['links'][link][i] = {
 				"name": target,
@@ -712,7 +722,7 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 			await ctx.respond(f"You have edited one of {name.upper()}'s {link.title()} links.\nName: {old_link['name']} -> **{target}**\nLocked: {old_link['locked']} -> **{locked}**\nSpent: {old_link['spent']} -> **{spent}**")
 			await save_character_data(str(ctx.author.id))
 			return
-	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {original_target}.")
+	await ctx.respond(f"{name.upper()} does not currently have a {link.title()} link with anyone or anything named {original_target}.",ephemeral=True)
 	return
 
 @bot.command(description="Add an item your active character")
@@ -726,7 +736,8 @@ async def add_item(ctx,item: discord.Option(str, "The item to add", required=Tru
 	if item in character['items']:
 		await ctx.respond(f"{name.upper()} is already carrying an item called **{item}**.",ephemeral=True)
 		return
-		
+	
+	ctx.defer()
 	character['items'].append(item)
 	
 	await ctx.respond(f"**{name.upper()}** has added **{item}** to their inventory.")
@@ -747,6 +758,7 @@ async def edit_item(ctx,original_item: discord.Option(str, "The item to replace"
 		await ctx.respond(f"{name.upper()} is already carrying an item called **{item}**.",ephemeral=True)
 		return
 	
+	ctx.defer()
 	orig_item_index = character['items'].index(original_item)
 	character['items'][orig_item_index] = item
 	
@@ -764,7 +776,8 @@ async def remove_item(ctx,item: discord.Option(str, "The item to remove", requir
 	if item not in character['items']:
 		await ctx.respond(f"{name.upper()} is not carrying an item called **{item}**.",ephemeral=True)
 		return
-		
+	
+	ctx.defer()
 	character['items'].remove(item)
 	
 	await ctx.respond(f"**{name.upper()}** has __removed__ **{item}** to their inventory.")
@@ -796,6 +809,7 @@ async def set_playbook(ctx,
 		return
 	charname = get_active_name(ctx)
 
+	ctx.defer()
 	character['playbook'] = playbook
 	character['light'] = light
 	character['dark'] = dark
@@ -825,6 +839,7 @@ async def set_pronouns(ctx,
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
+	ctx.defer()
 
 	character['pronouns'] = pronouns
 
@@ -843,6 +858,7 @@ async def set_attribute(ctx,
 		return
 	charname = get_active_name(ctx)
 
+	ctx.defer()
 	character[attribute] = new_value
 
 	await ctx.respond(f"{charname.upper()}'s **{type_to_symbol[attribute.lower()]} {attribute.title()}** score is now **{'+' if new_value >= 0 else ''}{new_value}**.")
@@ -862,6 +878,7 @@ async def add_move(ctx, name: discord.Option(str,"The name of the move.",require
 				await ctx.respond(f"{charname.upper()} already has a move called '{move['name']}'.",ephemeral=True)
 				return
 
+	ctx.defer()
 	character['moves'].append({
 		'name': name,
 		'effect': effect
@@ -890,6 +907,7 @@ async def remove_move(ctx, name: discord.Option(str,"The name of the move to rem
 
 	for move in character['moves']:
 		if move['name'].lower() == name.lower():
+			ctx.defer()
 			character['moves'].remove(move)
 			await ctx.respond(f"{charname.upper()} has lost the move **{name}**.")
 			await save_character_data(str(ctx.author.id))
@@ -906,6 +924,7 @@ async def experience(ctx, amount: discord.Option(int,"The amount of Experience t
 		return
 	name = get_active_name(ctx)
 
+	ctx.defer()
 	character['xp'] += amount
 	level_change = 0
 	while character['xp'] >= 5:
@@ -939,6 +958,7 @@ async def harm(ctx, amount: discord.Option(int,"The amount of harm to take.",req
 		return
 	name = get_active_name(ctx)
 
+	ctx.defer()
 	character['harm'] += amount
 	if character['harm'] > 4:
 		character['harm'] = 4
@@ -962,6 +982,7 @@ async def heal(ctx, amount: discord.Option(int,"The amount of harm to remove.",r
 		return
 	name = get_active_name(ctx)
 
+	ctx.defer()
 	character['harm'] -= amount
 	if character['harm'] < 0:
 		character['harm'] = 0
@@ -1010,6 +1031,7 @@ async def dice(ctx, syntax: discord.Option(str,"The dice syntax"),
 		await ctx.respond(f"Could not properly parse your dice result. This usually means the result is much too large. Try rolling dice that will result in a smaller range of values.",ephemeral=True)
 		return
 	
+	ctx.defer()
 	message = ""
 	if instances > 1:
 		strings_to_join = []
@@ -1025,10 +1047,6 @@ async def dice(ctx, syntax: discord.Option(str,"The dice syntax"),
 	
 	if len(message) > 2000:
 		message = message.replace("*","").replace("`","")
-		# with open("message.txt","w") as file:
-		# 	file.write(message)
-		# await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File('message.txt'),ephemeral=hidden)
-		# os.remove('message.txt')
 		filedata = io.BytesIO(message.encode('utf-8'))
 		await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
 		log("Sent dice results as file")
