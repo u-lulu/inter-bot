@@ -700,7 +700,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with `/add_link`.*"
 	else:
 		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\nℹ️ *Add the Link the GM gives you with `/add_link`.*"
-		xp_gain = 2
+		xp_gain += 1
 	
 	if xp_gain != 0:
 		save_required = True
