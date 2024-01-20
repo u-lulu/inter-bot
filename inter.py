@@ -205,9 +205,11 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ( {type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''} ) = **{total}**: "
 	
 	save_necessary = False
+	exp_necessary = False
 
 	if total <= 6:
 		message += "You **fail** in what you're attempting."
+		exp_necessary = True
 	elif total <= 9:
 		message += "You **partially succeed** in what you're attempting."
 	else:
@@ -225,8 +227,10 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 				save_necessary = True
 			
 	await ctx.respond(message)
-	if save_necessary:
+	if save_necessary and not exp_necessary:
 		await save_character_data(str(ctx.author.id))
+	if exp_necessary:
+		await exp_necessary(ctx)
 
 async def character_names_autocomplete(ctx: discord.AutocompleteContext):
 	uid = str(ctx.interaction.user.id)
