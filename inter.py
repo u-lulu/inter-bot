@@ -492,6 +492,7 @@ async def moves(ctx):
 	name = get_active_name(ctx)
 	await ctx.defer()
 	message = f"**{name.upper()}**'s moves:"
+	moves_added = 0
 	for move in character['moves']:
 		moves_added += 1
 		n = move['name']
