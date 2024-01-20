@@ -230,7 +230,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	if save_necessary and not exp_necessary:
 		await save_character_data(str(ctx.author.id))
 	if exp_necessary:
-		await exp_necessary(ctx)
+		await experience(ctx)
 
 async def character_names_autocomplete(ctx: discord.AutocompleteContext):
 	uid = str(ctx.interaction.user.id)
@@ -480,6 +480,30 @@ async def inventory(ctx):
 		filedata = io.BytesIO(message.encode('utf-8'))
 		await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
 		log("Sent inventory as file")
+	else:
+		await ctx.respond(message)
+
+@bot.command(description="Show your active character's moves")
+async def moves(ctx):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	name = get_active_name(ctx)
+	await ctx.defer()
+	message = f"**{name.upper()}**'s moves:"
+	for move in character['moves']:
+		moves_added += 1
+		n = move['name']
+		e = move['effect']
+		message += f"\n### **{n}**\n{e}"
+	if moves_added <= 0:
+		message += "\n*No moves yet.*"
+	if len(message) > 2000:
+		message = message.replace("*","").replace("# ","")
+		filedata = io.BytesIO(message.encode('utf-8'))
+		await ctx.respond("The message is too long to send. Please view the attached file.",file=discord.File(filedata, filename='message.txt'))
+		log("Sent moves list as file")
 	else:
 		await ctx.respond(message)
 
