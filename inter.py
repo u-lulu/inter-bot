@@ -271,8 +271,6 @@ async def create_character(ctx, name: discord.Option(str, "The character's name,
 		await ctx.respond(f"You have already created a character with the name '{name}'.",ephemeral=True)
 		return
 
-	await ctx.defer()
-	
 	character_data[userid]["chars"][name] = {
 		"playbook": None,
 		"pronouns": None,
@@ -612,7 +610,6 @@ async def switch_character(ctx, name: discord.Option(str, "The name of the chara
 		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with `/list`. Check your spelling, or try creating a new one with `/create_character`.",ephemeral=True)
 		return
 	else:
-		await ctx.defer()
 		character_data[userid]['active'][str(ctx.channel_id)] = name
 		await ctx.respond(f"Your active character in this channel is now **{name.upper()}**.")
 	return
