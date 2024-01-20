@@ -230,7 +230,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	if save_necessary and not exp_necessary:
 		await save_character_data(str(ctx.author.id))
 	if exp_necessary:
-		await experience(ctx)
+		await experience(ctx,1)
 
 async def character_names_autocomplete(ctx: discord.AutocompleteContext):
 	uid = str(ctx.interaction.user.id)
