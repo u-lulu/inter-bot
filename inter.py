@@ -255,7 +255,11 @@ async def character_names_autocomplete(ctx: discord.AutocompleteContext):
 		return list(character_data[uid]['chars'].keys())
 	else:
 		return []
-	
+
+@bot.command(description="Links to the Help document for this bot")
+async def help(ctx):
+	await ctx.respond("[Full command documentation](https://docs.google.com/document/d/1C2-BounRmzKvRDH0z6lCfIVHZFkhXfqAm7dG2cQxWA0/edit?usp=sharing)",ephemeral=True)
+
 @bot.command(description="Create a new character to manage")
 async def create_character(ctx, name: discord.Option(str, "The character's name, used for selecting them with other commands.",required=True, max_length=50)):
 	userid = str(ctx.author.id)
