@@ -1091,6 +1091,24 @@ async def remove_move(ctx, name: discord.Option(str,"The name of the move to rem
 	await ctx.respond(f"{charname.upper()} does not have a move named '{name}'.",ephemeral=True)
 	return
 
+@bot.command(description="Display a single Move from your active character")
+async def display_move(ctx, name: discord.Option(str,"The name of the move to display.",required=True,autocomplete=discord.utils.basic_autocomplete(current_moves_autocomp))):
+	character = get_active_char_object(ctx)
+	if character == None:
+		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		return
+	charname = get_active_name(ctx)
+
+	for move in character['moves']:
+		if move['name'].lower() == name.lower():
+			await ctx.defer()
+			await ctx.respond(f"{charname.upper()}'s move:\n>>>## **{move['name']}**\n{move['effect']}")
+			await save_character_data(str(ctx.author.id))
+			return
+
+	await ctx.respond(f"{charname.upper()} does not have a move named '{name}'.",ephemeral=True)
+	return
+
 @bot.command(description="Gain Experience on your active character")
 async def experience(ctx, amount: discord.Option(int,"The amount of Experience to gain.",required=False,default=1)):
 	character = get_active_char_object(ctx)
