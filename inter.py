@@ -731,7 +731,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 			"locked": locked,
 			"spent": False
 		})
-		message += " You both get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
+		message += " You **both** get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
 	elif result >= 7:
 		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with `/add_link`.*"
 	else:
