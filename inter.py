@@ -197,7 +197,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	
 	total = sum(results) + modifier
 	
-	message = f"**{name.upper()}** rolling with {stat.title()}{' links' if use_links else ''}:\n> "
+	message = f"**{name.upper()}** rolling with {stat.title()}{' links' if use_links else ''}:\n>>> "
 	
 	if extra_mod != 0:
 		message += f"({dice_string}) {'+' if inherent_bonus >= 0 else '-'} {abs(inherent_bonus)} ( {type_to_symbol[stat.lower()]}{'⛓️' if use_links else ''} ) {'+' if extra_mod >= 0 else '-'} {abs(extra_mod)} ({'bonus' if extra_mod >= 0 else 'penalty'}) = **{total}**: "
@@ -219,7 +219,7 @@ async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 			character['xp'] += 5
 		character['level'] += level_change
 
-		message += f"\n{name.upper()} has gained 1 Experience."
+		message += f"\n\n{name.upper()} has gained 1 Experience."
 		if level_change > 1:
 			message += f"\n**💖 They have gained {level_change} advancements!**"
 		elif level_change == 1:
