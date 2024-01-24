@@ -584,7 +584,6 @@ async def edit_notes(ctx):
 		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
-	await ctx.defer()
 	note = character['notes']
 
 	class NotesModal(discord.ui.Modal):
