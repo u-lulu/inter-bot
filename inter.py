@@ -1102,7 +1102,7 @@ async def display_move(ctx, name: discord.Option(str,"The name of the move to di
 	for move in character['moves']:
 		if move['name'].lower() == name.lower():
 			await ctx.defer()
-			await ctx.respond(f"{charname.upper()}'s move:\n>>>## **{move['name']}**\n{move['effect']}")
+			await ctx.respond(f"{charname.upper()}'s move:\n>>> ## **{move['name']}**\n{move['effect']}")
 			await save_character_data(str(ctx.author.id))
 			return
 
