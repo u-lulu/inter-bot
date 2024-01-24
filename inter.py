@@ -451,7 +451,7 @@ async def sheet(ctx):
 	for link_type in character['links']:
 		amount = len(character['links'][link_type])
 		if amount > 0:
-			message += f"\n**{type_to_symbol[link_type.lower()]} {link_type.title()}** ({amount}): "
+			message += f"\n- **{type_to_symbol[link_type.lower()]} {link_type.title()}** ({amount}): "
 			list_of_links = []
 			for single_link in character['links'][link_type]:
 				links_added += 1
