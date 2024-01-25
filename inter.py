@@ -678,7 +678,7 @@ def choose_partial_link_buttons(link_type,target,is_locked,ctx):
 	async def intended_link_callback(interaction):
 		await add_link(ctx,link_type,target,is_locked)
 	use_intended_link_button.callback = intended_link_callback
-	output.add_item(use_intended_link_button)
+	output.add(use_intended_link_button)
 
 	available_options = ['dark', 'light', 'mastery', 'heart']
 	available_options.remove(link_type)
@@ -689,7 +689,7 @@ def choose_partial_link_buttons(link_type,target,is_locked,ctx):
 	async def other_link_callback(self,select,interaction):
 		await add_link(ctx,select.values[0],target,is_locked)
 	other_links_dropdown.callback = other_link_callback
-	output.add_item(other_links_dropdown)
+	output.add(other_links_dropdown)
 
 	return output
 
