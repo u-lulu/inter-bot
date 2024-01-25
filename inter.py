@@ -671,28 +671,6 @@ async def link_names_in_category(ctx):
 		out.append(l['name'])
 	return out
 
-def choose_partial_link_buttons(link_type,target,is_locked,ctx):
-	output = discord.ui.View(disable_on_timeout=True)
-
-	use_intended_link_button = discord.ui.Button(label=f"Add link as intended ({link_type.title()} with {target})")
-	async def intended_link_callback(interaction):
-		await add_link(ctx,link_type,target,is_locked)
-	use_intended_link_button.callback = intended_link_callback
-	output.add(use_intended_link_button)
-
-	available_options = ['dark', 'light', 'mastery', 'heart']
-	available_options.remove(link_type)
-
-	other_links_dropdown = discord.ui.Select(placeholder="Add a different kind of link...",min_values=1,max_values=1)
-	for opt in available_options:
-		other_links_dropdown.add_option(label=opt.title(),value=opt,description="Add this type of link instead.",emoji=type_to_symbol[opt])
-	async def other_link_callback(self,select,interaction):
-		await add_link(ctx,select.values[0],target,is_locked)
-	other_links_dropdown.callback = other_link_callback
-	output.add(other_links_dropdown)
-
-	return output
-
 @bot.command(description="Roll to make a link with your active character")
 async def make_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
 		target: discord.Option(str, "The target of your link", required=True, max_length=100),
@@ -732,7 +710,6 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		d_string.append(num_to_die[i])
 	d_string = ' '.join(d_string)
 
-	buttons = None
 	message = f"{name.upper()} rolls to make a {'Locked ' if locked else ''}**{link.title()}** link with **{target}**:\n>>> "
 	message += f"({d_string})"
 	if upper_bonus:
@@ -756,7 +733,6 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		message += " You **both** get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
 	elif result >= 7:
 		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with `/add_link`.*"
-		buttons = choose_partial_link_buttons(link,target,locked,ctx)
 	else:
 		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\nℹ️ *Add the Link the GM gives you with `/add_link`.*"
 		xp_gain += 1
@@ -784,7 +760,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 			message += f"\n**💔 They have lost {abs(level_change)} advancements.**"
 		message += f"\nTheir Experience track is now at **{character['xp']}/5**.\nThey have {character['level']} advancements."
 
-	await ctx.respond(message,view=buttons)
+	await ctx.respond(message)
 	if save_required:
 		await save_character_data(str(ctx.author.id))
 
