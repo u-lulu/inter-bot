@@ -178,7 +178,7 @@ def get_active_char_object(ctx):
 async def roll_with_skill(ctx, extra_mod, advantage, stat, use_links=False):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -317,7 +317,7 @@ async def rename(ctx,
 
 	name = name.lower()
 	if userid not in character_data or name not in character_data[userid]['chars']:
-		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with `/list`. Check your spelling, or try creating a new one with `/create_character`.",ephemeral=True)
+		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with {cmd_mention('list')}. Check your spelling, or try creating a new one with {cmd_mention('create_character')}.",ephemeral=True)
 		return
 	
 	new_name = new_name.lower()
@@ -418,7 +418,7 @@ async def my_characters(ctx):
 async def sheet(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	await ctx.defer()
@@ -491,7 +491,7 @@ async def sheet(ctx):
 async def inventory(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	await ctx.defer()
@@ -513,7 +513,7 @@ async def inventory(ctx):
 async def links(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	await ctx.defer()
@@ -548,7 +548,7 @@ async def links(ctx):
 async def moves(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	await ctx.defer()
@@ -573,7 +573,7 @@ async def moves(ctx):
 async def view_notes(ctx, hide_output: discord.Option(bool, "Hides the output message from everyone else.", required=False, default=True)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	note = character['notes']
@@ -588,7 +588,7 @@ async def view_notes(ctx, hide_output: discord.Option(bool, "Hides the output me
 async def edit_notes(ctx):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	note = character['notes']
@@ -612,12 +612,12 @@ async def edit_notes(ctx):
 async def switch_character(ctx, name: discord.Option(str, "The name of the character to switch to.", autocomplete=discord.utils.basic_autocomplete(character_names_autocomplete), required=True)):
 	userid = str(ctx.author.id)
 	if userid not in character_data or len(character_data[userid]['chars']) <= 0:
-		await ctx.respond("You have no characters available. Use `/create_character` to make one.",ephemeral=True)
+		await ctx.respond(f"You have no characters available. Use {cmd_mention('create_character')} to make one.",ephemeral=True)
 		return
 		
 	name = name.lower()
 	if name not in character_data[userid]["chars"]:
-		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with `/list`. Check your spelling, or try creating a new one with `/create_character`.",ephemeral=True)
+		await ctx.respond(f"You have not created a character with the name '{name}'. You can view what characters you've made with {cmd_mention('list')}. Check your spelling, or try creating a new one with {cmd_mention('create_character')}.",ephemeral=True)
 		return
 	else:
 		character_data[userid]['active'][str(ctx.channel_id)] = name
@@ -687,7 +687,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -739,9 +739,9 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 		})
 		message += " You **both** get a Link on one another, and your **Link Move** triggers.\n*The link has been automatically added to your character sheet.*"
 	elif result >= 7:
-		message += " Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with `/add_link`.*"
+		message += f" Choose one:\n- Your Link Move doesn't trigger\n- The Link isn't what you intended\nℹ️ *Once you have made a choice, add the Link with {cmd_mention('add_link')}.*"
 	else:
-		message += " Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\nℹ️ *Add the Link the GM gives you with `/add_link`.*"
+		message += f" Your Link Move doesn't trigger.\nThe GM gives you a link of their choice, but also picks one:\n- Make a Move as hard as you want\n- Someone else gets a Link\nℹ️ *Add the Link the GM gives you with {cmd_mention('add_link')}.*"
 		xp_gain += 1
 	
 	if xp_gain != 0:
@@ -777,7 +777,7 @@ async def add_link(ctx,link: discord.Option(str, "The type of link", required=Tr
 		locked: discord.Option(bool, "If the link is locked", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -802,7 +802,7 @@ async def spend_link(ctx,link: discord.Option(str, "The type of link", required=
 		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -833,7 +833,7 @@ async def lock_link(ctx,link: discord.Option(str, "The type of link", required=T
 		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -858,7 +858,7 @@ async def unlock_link(ctx,link: discord.Option(str, "The type of link", required
 		target: discord.Option(str, "The target of the link to be spent", required=True, autocomplete=discord.utils.basic_autocomplete(link_names_in_category))):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -888,7 +888,7 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 		locked: discord.Option(bool, "If the link is locked", default=False), spent: discord.Option(bool, "If the link is spent", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -911,7 +911,7 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 async def add_item(ctx,item: discord.Option(str, "The item to add", required=True, max_length=100)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	
@@ -929,7 +929,7 @@ async def add_item(ctx,item: discord.Option(str, "The item to add", required=Tru
 async def edit_item(ctx,original_item: discord.Option(str, "The item to replace", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=100),item: discord.Option(str, "The item to change it to", required=True, autocomplete=discord.utils.basic_autocomplete(orig_item_autocomp), max_length=100)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	
@@ -951,7 +951,7 @@ async def edit_item(ctx,original_item: discord.Option(str, "The item to replace"
 async def remove_item(ctx,item: discord.Option(str, "The item to remove", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=100)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 	
@@ -987,7 +987,7 @@ async def set_playbook(ctx,
 		):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 
@@ -1018,7 +1018,7 @@ async def set_pronouns(ctx,
 		pronouns: discord.Option(str, "The pronouns to set", required=True, autocomplete=discord.utils.basic_autocomplete(pronouns_autocomplete), max_length=30)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 	await ctx.defer()
@@ -1036,7 +1036,7 @@ async def set_attribute(ctx,
 		):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 
@@ -1051,7 +1051,7 @@ async def set_attribute(ctx,
 async def add_move(ctx, name: discord.Option(str,"The name of the move.",required=True,max_length=100), effect: discord.Option(str,"The effect of the move.",required=True)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 
@@ -1083,7 +1083,7 @@ async def current_moves_autocomp(ctx):
 async def remove_move(ctx, name: discord.Option(str,"The name of the move to remove.",required=True,autocomplete=discord.utils.basic_autocomplete(current_moves_autocomp))):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 
@@ -1102,7 +1102,7 @@ async def remove_move(ctx, name: discord.Option(str,"The name of the move to rem
 async def display_move(ctx, name: discord.Option(str,"The name of the move to display.",required=True,autocomplete=discord.utils.basic_autocomplete(current_moves_autocomp))):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	charname = get_active_name(ctx)
 
@@ -1120,7 +1120,7 @@ async def display_move(ctx, name: discord.Option(str,"The name of the move to di
 async def experience(ctx, amount: discord.Option(int,"The amount of Experience to gain.",required=False,default=1)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -1154,7 +1154,7 @@ async def experience(ctx, amount: discord.Option(int,"The amount of Experience t
 async def harm(ctx, amount: discord.Option(int,"The amount of harm to take.",required=False,default=1,max_value=4,min_value=1)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
@@ -1178,7 +1178,7 @@ async def harm(ctx, amount: discord.Option(int,"The amount of harm to take.",req
 async def heal(ctx, amount: discord.Option(int,"The amount of harm to remove.",required=False,default=1,max_value=4,min_value=1)):
 	character = get_active_char_object(ctx)
 	if character == None:
-		await ctx.respond("You do not have an active character in this channel. Select one with `/switch_character`.",ephemeral=True)
+		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
 		return
 	name = get_active_name(ctx)
 
