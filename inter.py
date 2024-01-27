@@ -141,6 +141,13 @@ async def shutdown(ctx):
 		log(f"Shutdown request denied ({ctx.author.id})")
 		await ctx.respond(f"Only <@{ownerid}> may use this command.",ephemeral=True)
 
+def cmd_mention(name):
+	cmd = bot.get_application_command(name)
+	if type(cmd) is not discord.SlashCommand:
+		return None
+	else:
+		return cmd.mention
+
 def get_active_name(ctx):
 	uid = None
 	cid = None
@@ -476,7 +483,7 @@ async def sheet(ctx):
 	
 	if len(message) > 2000:
 		filedata = io.BytesIO(message.encode('utf-8'))
-		await ctx.respond("The message is too long to send. Please view the attached file.", file=discord.File(filedata, filename=f'{name.lower()}.md'))
+		await ctx.respond(f"The message is too long to send. Please view the attached file.\nYou can view individual components of your character sheet with {cmd_mention('moves')}, {cmd_mention('links')}, and {cmd_mention('inventory')}.", file=discord.File(filedata, filename=f'{name.lower()}.md'))
 	else:
 		await ctx.respond(message)
 
