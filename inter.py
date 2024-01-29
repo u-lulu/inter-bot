@@ -680,7 +680,7 @@ async def link_names_in_category(ctx):
 
 @bot.command(description="Roll to make a link with your active character")
 async def make_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
-		target: discord.Option(str, "The target of your link", required=True, max_length=100),
+		target: discord.Option(str, "The target of your link", required=True, max_length=50),
 		locked: discord.Option(bool, "If the link is locked", default=False),
 		modifier: discord.Option(int, "Extra modifiers for the roll", required=False, default=0),
 		advantage: discord.Option(bool, "Roll 3d6 and take the best two", required=False, default=False)
@@ -773,7 +773,7 @@ async def make_link(ctx,link: discord.Option(str, "The type of link", required=T
 
 @bot.command(description="Add a link to your active character")
 async def add_link(ctx,link: discord.Option(str, "The type of link", required=True, choices=['dark', 'light', 'mastery', 'heart']),
-		target: discord.Option(str, "The target of your link", required=True, max_length=100),
+		target: discord.Option(str, "The target of your link", required=True, max_length=50),
 		locked: discord.Option(bool, "If the link is locked", default=False)):
 	character = get_active_char_object(ctx)
 	if character == None:
@@ -908,7 +908,7 @@ async def edit_link(ctx, link: discord.Option(str, "The type of link", required=
 	return
 
 @bot.command(description="Add an item your active character")
-async def add_item(ctx,item: discord.Option(str, "The item to add", required=True, max_length=100)):
+async def add_item(ctx,item: discord.Option(str, "The item to add", required=True, max_length=50)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
@@ -926,7 +926,7 @@ async def add_item(ctx,item: discord.Option(str, "The item to add", required=Tru
 	await save_character_data(str(ctx.author.id))
 
 @bot.command(description="Edit an item in your inventory")
-async def edit_item(ctx,original_item: discord.Option(str, "The item to replace", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=100),item: discord.Option(str, "The item to change it to", required=True, autocomplete=discord.utils.basic_autocomplete(orig_item_autocomp), max_length=100)):
+async def edit_item(ctx,original_item: discord.Option(str, "The item to replace", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=50),item: discord.Option(str, "The item to change it to", required=True, autocomplete=discord.utils.basic_autocomplete(orig_item_autocomp), max_length=50)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
@@ -948,7 +948,7 @@ async def edit_item(ctx,original_item: discord.Option(str, "The item to replace"
 	await save_character_data(str(ctx.author.id))
 
 @bot.command(description="Remove an item from your active character")
-async def remove_item(ctx,item: discord.Option(str, "The item to remove", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=100)):
+async def remove_item(ctx,item: discord.Option(str, "The item to remove", required=True, autocomplete=discord.utils.basic_autocomplete(item_autocomp), max_length=50)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
@@ -1048,7 +1048,7 @@ async def set_attribute(ctx,
 	return
 
 @bot.command(description="Add a Move to your active character")
-async def add_move(ctx, name: discord.Option(str,"The name of the move.",required=True,max_length=100), effect: discord.Option(str,"The effect of the move.",required=True)):
+async def add_move(ctx, name: discord.Option(str,"The name of the move.",required=True,max_length=50), effect: discord.Option(str,"The effect of the move.",required=True)):
 	character = get_active_char_object(ctx)
 	if character == None:
 		await ctx.respond(f"You do not have an active character in this channel. Select one with {cmd_mention('switch_character')}.",ephemeral=True)
